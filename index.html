@@ -31,18 +31,25 @@
         
         .game-board {
             display: grid;
-            grid-template-columns: repeat(8, 70px);
-            grid-template-rows: repeat(8, 70px);
+            grid-template-columns: repeat(10, 60px);
+            grid-template-rows: repeat(10, 60px);
             gap: 1px;
             border: 2px solid #d81b60;
             background-color: #d81b60;
             margin-bottom: 20px;
         }
         
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .game-board {
-                grid-template-columns: repeat(8, 40px);
-                grid-template-rows: repeat(8, 40px);
+                grid-template-columns: repeat(10, 35px);
+                grid-template-rows: repeat(10, 35px);
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .game-board {
+                grid-template-columns: repeat(10, 28px);
+                grid-template-rows: repeat(10, 28px);
             }
         }
         
@@ -54,14 +61,21 @@
             background-color: white;
             font-weight: bold;
             position: relative;
-            font-size: 14px;
+            font-size: 12px;
             padding: 2px;
         }
         
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .cell {
                 font-size: 10px;
                 padding: 1px;
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .cell {
+                font-size: 8px;
+                padding: 0px;
             }
         }
         
@@ -85,11 +99,25 @@
         }
         
         .player {
-            width: 20px;
-            height: 20px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             position: absolute;
             z-index: 10;
+        }
+        
+        @media (max-width: 700px) {
+            .player {
+                width: 12px;
+                height: 12px;
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .player {
+                width: 10px;
+                height: 10px;
+            }
         }
         
         .player-1 {
@@ -230,9 +258,16 @@
         }
         
         .icon {
-            font-size: 16px;
-            margin-left: 5px;
+            font-size: 14px;
+            margin-left: 2px;
             display: block;
+        }
+        
+        @media (max-width: 450px) {
+            .icon {
+                font-size: 10px;
+                margin-left: 1px;
+            }
         }
         
         .snake-icon {
@@ -249,12 +284,19 @@
         
         .snake-arrow, .ladder-arrow {
             position: absolute;
-            font-size: 12px;
+            font-size: 10px;
             color: white;
             background-color: rgba(0,0,0,0.6);
-            padding: 2px 4px;
+            padding: 1px 2px;
             border-radius: 3px;
             z-index: 5;
+        }
+        
+        @media (max-width: 450px) {
+            .snake-arrow, .ladder-arrow {
+                font-size: 8px;
+                padding: 0px 1px;
+            }
         }
     </style>
 </head>
@@ -313,7 +355,7 @@
             <li>Jika mendarat di kotak kuning dengan simbol ⚡, dapatkan tantangan romantis.</li>
             <li>Ular (merah dengan simbol 🐍) akan membuat Anda turun ke kotak yang ditunjukkan.</li>
             <li>Tangga (hijau dengan simbol 🪜) akan membuat Anda naik ke kotak yang ditunjukkan.</li>
-            <li>Pemain pertama yang mencapai kotak 64 adalah pemenangnya.</li>
+            <li>Pemain pertama yang mencapai kotak 100 adalah pemenangnya.</li>
             <li>Nikmati waktu bersama pasangan Anda!</li>
         </ol>
     </div>
@@ -333,6 +375,7 @@
             let gameOver = false;
             let positions = { 1: 1, 2: 1 };
             let currentChallenge = "";
+            let challengeIndex = 0; // Track which challenge comes next in sequence
             
             // Definisi ular (dari -> ke)
             const snakes = {
@@ -340,7 +383,11 @@
                 32: 19,
                 45: 25,
                 58: 40,
-                62: 59
+                62: 59,
+                73: 52,
+                88: 67,
+                92: 71,
+                98: 79
             };
             
             // Definisi tangga (dari -> ke)
@@ -349,7 +396,11 @@
                 11: 28,
                 22: 37,
                 38: 56,
-                49: 51
+                49: 51,
+                61: 83,
+                65: 77,
+                70: 91,
+                85: 96
             };
             
             // Tantangan romantis untuk pasangan
@@ -358,6 +409,7 @@
                 "30 detik jilat telinga pasangan anda & ucapkan kata romantis.",
                 "buka semua pakaian luar.",
                 "10 detik hot kiss.",
+                "buka semua pakaian dalam",
                 "1 Menit Oral Mr.p suami.",
                 "1 menit mainkan lidah di ms.v istri.",
                 "1 menit saling mainkan tangan di area vital.",
@@ -387,36 +439,36 @@
             ];
             
             // Kotak tantangan
-            const challengeSquares = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+            const challengeSquares = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95];
             
-            // Membuat papan permainan 8x8
+            // Membuat papan permainan 10x10
             function createBoard() {
                 board.innerHTML = '';
                 const numbers = [];
                 
                 // Membuat urutan angka dalam zigzag
-                for (let row = 7; row >= 0; row--) {
+                for (let row = 9; row >= 0; row--) {
                     if (row % 2 === 0) {
                         // Baris genap dari kiri ke kanan
-                        for (let col = 0; col < 8; col++) {
-                            numbers.push(row * 8 + col + 1);
+                        for (let col = 0; col < 10; col++) {
+                            numbers.push(row * 10 + col + 1);
                         }
                     } else {
                         // Baris ganjil dari kanan ke kiri
-                        for (let col = 7; col >= 0; col--) {
-                            numbers.push(row * 8 + col + 1);
+                        for (let col = 9; col >= 0; col--) {
+                            numbers.push(row * 10 + col + 1);
                         }
                     }
                 }
                 
-                // Membuat 64 kotak
-                for (let i = 0; i < 64; i++) {
+                // Membuat 100 kotak
+                for (let i = 0; i < 100; i++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     const num = numbers[i];
                     
                     // Menambahkan kelas alternatif untuk pola papan
-                    if ((Math.floor((i % 16) / 8) + Math.floor(i / 8)) % 2 === 0) {
+                    if ((Math.floor((i % 20) / 10) + Math.floor(i / 10)) % 2 === 0) {
                         cell.classList.add('alternate');
                     }
                     
@@ -439,7 +491,7 @@
                         // Tambahkan tanda panah
                         const arrowSpan = document.createElement('span');
                         arrowSpan.className = 'snake-arrow';
-                        arrowSpan.textContent = `→ ${snakes[num]}`;
+                        arrowSpan.textContent = `→${snakes[num]}`;
                         cell.appendChild(arrowSpan);
                         
                     } else if (ladders[num]) {
@@ -455,7 +507,7 @@
                         // Tambahkan tanda panah
                         const arrowSpan = document.createElement('span');
                         arrowSpan.className = 'ladder-arrow';
-                        arrowSpan.textContent = `→ ${ladders[num]}`;
+                        arrowSpan.textContent = `→${ladders[num]}`;
                         cell.appendChild(arrowSpan);
                         
                     } else if (challengeSquares.includes(num)) {
@@ -486,7 +538,7 @@
                 
                 // Tambahkan pemain ke kotak sesuai posisi
                 for (let player = 1; player <= 2; player++) {
-                    if (positions[player] <= 64) {
+                    if (positions[player] <= 100) {
                         const playerCell = document.getElementById(`cell-${positions[player]}`);
                         if (playerCell) {
                             const playerMarker = document.createElement('div');
@@ -533,8 +585,8 @@
                 // Memperbarui pesan
                 message.textContent = `Pemain ${currentPlayer} mendapat ${steps}, bergerak dari ${positions[currentPlayer]} ke ${newPosition}`;
                 
-                // Pemain tidak bisa lebih dari 64
-                if (newPosition > 64) {
+                // Pemain tidak bisa lebih dari 100
+                if (newPosition > 100) {
                     message.textContent += ` - Terlalu jauh, tetap di ${positions[currentPlayer]}`;
                     switchPlayer();
                     return;
@@ -558,7 +610,13 @@
                     // Periksa tantangan
                     else if (challengeSquares.includes(newPosition)) {
                         message.textContent = `Pemain ${currentPlayer} mendarat di kotak tantangan! Klik tombol "Lihat Tantangan"`;
-                        currentChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+                        
+                        // Get challenge in sequence instead of randomly
+                        currentChallenge = challenges[challengeIndex];
+                        
+                        // Increment the challenge index for next time
+                        challengeIndex = (challengeIndex + 1) % challenges.length;
+                        
                         challengeBtn.style.display = 'block';
                         rollBtn.disabled = true;
                     }
@@ -566,7 +624,7 @@
                     updatePlayerPositions();
                     
                     // Periksa kemenangan
-                    if (positions[currentPlayer] === 64) {
+                    if (positions[currentPlayer] === 100) {
                         message.textContent = `Selamat! Pemain ${currentPlayer} menang!`;
                         gameOver = true;
                         rollBtn.disabled = true;
@@ -605,6 +663,7 @@
                 currentPlayer = 1;
                 gameOver = false;
                 positions = { 1: 1, 2: 1 };
+                challengeIndex = 0; // Reset challenge index when starting a new game
                 message.textContent = 'Permainan baru dimulai! Giliran Pemain 1';
                 rollBtn.disabled = false;
                 challengeBtn.style.display = 'none';
